@@ -2,13 +2,9 @@ import { useState } from 'react'
 import { getStatus } from '../../hooks/useApplications'
 import { Trash2, ExternalLink, ChevronDown } from 'lucide-react'
 
-export function ApplicationCard({ application, onUpdate, onRemove, onStatusChange }) {
+export function ApplicationCard({ application, onRemove, onStatusChange }) {
   const [expanded, setExpanded] = useState(false)
   const status = getStatus(application.status)
-
-  async function handleStatusChange(newStatus) {
-    await onStatusChange(application.id, newStatus)
-  }
 
   async function handleRemove() {
     if (confirm('Supprimer cette candidature ?')) {
@@ -23,16 +19,14 @@ export function ApplicationCard({ application, onUpdate, onRemove, onStatusChang
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex items-center gap-4 flex-1">
-          <div
-            className={`w-3 h-3 rounded-full ${status.dot}`}
-          />
+          <div className={`w-3 h-3 rounded-full ${status.dot}`} />
           <div className="flex-1">
             <h3 className="font-semibold">{application.company_name}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">{application.position}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`badge ${status.color}">
+          <span className={`badge ${status.color}`}>
             {status.label}
           </span>
           <ChevronDown
@@ -49,6 +43,7 @@ export function ApplicationCard({ application, onUpdate, onRemove, onStatusChang
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-primary-600 hover:underline text-sm"
+              onClick={(e) => e.stopPropagation()}
             >
               Voir l'offre <ExternalLink className="w-3 h-3" />
             </a>
@@ -57,28 +52,40 @@ export function ApplicationCard({ application, onUpdate, onRemove, onStatusChang
           <div className="grid grid-cols-2 gap-4 text-sm">
             {application.location && (
               <div>
-                <p className="text-gray-600 dark:text-gray-400">Localisation</p>
+                <p className="text-gray-500 dark:text-gray-400">Localisation</p>
                 <p className="font-medium">{application.location}</p>
               </div>
             )}
             {application.salary_range && (
               <div>
-                <p className="text-gray-600 dark:text-gray-400">Salaire</p>
+                <p className="text-gray-500 dark:text-gray-400">Salaire</p>
                 <p className="font-medium">{application.salary_range}</p>
+              </div>
+            )}
+            {application.contact_name && (
+              <div>
+                <p className="text-gray-500 dark:text-gray-400">Contact</p>
+                <p className="font-medium">{application.contact_name}</p>
+              </div>
+            )}
+            {application.interest_score && (
+              <div>
+                <p className="text-gray-500 dark:text-gray-400">Intérêt</p>
+                <p className="font-medium">{'⭐'.repeat(application.interest_score)}</p>
               </div>
             )}
           </div>
 
           {application.notes && (
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">Notes</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Notes</p>
               <p className="text-sm mt-1">{application.notes}</p>
             </div>
           )}
 
           <div className="flex gap-2 pt-2">
             <button
-              onClick={() => handleRemove()}
+              onClick={(e) => { e.stopPropagation(); handleRemove() }}
               className="btn btn-danger btn-sm gap-1"
             >
               <Trash2 className="w-3 h-3" /> Supprimer
