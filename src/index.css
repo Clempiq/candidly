@@ -67,4 +67,4 @@
 
 /* Kanban drag states */
 .kanban-dragging { @apply opacity-50 rotate-1 scale-105; }
-.kanban-drag-over { @apply ring-2 ring-primary-400 ring-inset bg-primary-50 dark:bg-primary-950/30; }
+.kanban-drag-over { @apply ring-2 ring-primary-400 ring-inset bg-primary-50 dark:bg-primary-900/30; }
