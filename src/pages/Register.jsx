@@ -1,29 +1,33 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function Register() {
-  const navigate = useNavigate()
+  const [firstName, setFirstName]   = useState('')
+  const [lastName, setLastName]     = useState('')
+  const [email, setEmail]           = useState('')
+  const [password, setPassword]     = useState('')
+  const [showPwd, setShowPwd]       = useState(false)
+  const [error, setError]           = useState('')
+  const [loading, setLoading]       = useState(false)
+
   const { signUp } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const navigate   = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
 
-    if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas')
+    if (password.length < 6) {
+      setError('Le mot de passe doit faire au moins 6 caractères.')
       return
     }
 
     setLoading(true)
-
     try {
-      await signUp(email, password)
+      const fullName = `${firstName.trim()} ${lastName.trim()}`
+      await signUp(email, password, fullName)
       navigate('/dashboard')
     } catch (err) {
       setError(err.message)
@@ -33,63 +37,112 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-600 to-primary-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+
+        {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold">Candidly</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Suivi de candidatures</p>
+          <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-12 h-12">
+              <rect width="100" height="100" rx="22" fill="#6366f1"/>
+              <rect x="22" y="42" width="56" height="38" rx="6" fill="white"/>
+              <path d="M38 42 L38 35 Q38 28 50 28 Q62 28 62 35 L62 42" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/>
+              <rect x="22" y="57" width="56" height="4" fill="#6366f1" opacity="0.25"/>
+              <rect x="44" y="53" width="12" height="8" rx="3" fill="#6366f1" opacity="0.5"/>
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-white">Candidly</h1>
+          <p className="text-primary-200 mt-1 text-sm">Suivi de candidatures</p>
         </div>
 
-        <div className="card p-8 space-y-6">
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">Créer un compte</h2>
+
           {error && (
-            <div className="p-4 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">
+              {error}
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="input"
+                  placeholder="Léa"
+                  required
+                  autoComplete="given-name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="input"
+                  placeholder="Martin"
+                  required
+                  autoComplete="family-name"
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="label">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input"
+                placeholder="ton@email.com"
                 required
+                autoComplete="email"
               />
             </div>
+
             <div>
-              <label className="label">Mot de passe</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input"
-                required
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+              <div className="relative">
+                <input
+                  type={showPwd ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input pr-10"
+                  placeholder="Au moins 6 caractères"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(!showPwd)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="label">Confirmer le mot de passe</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input"
-                required
-              />
-            </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary w-full"
+              className="btn btn-primary w-full mt-2"
             >
-              {loading ? 'Création...' : 'Créer un compte'}
+              {loading ? 'Création du compte...' : 'Créer mon compte'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            Déjà un compte?{' '}
-            <a href="/login" className="text-primary-600 hover:underline">
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Déjà un compte ?{' '}
+            <Link to="/login" className="text-primary-600 font-medium hover:underline">
               Se connecter
-            </a>
+            </Link>
           </p>
         </div>
       </div>
