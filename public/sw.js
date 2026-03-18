@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = 'v2'
 const CACHE_NAME = `candidly-${CACHE_VERSION}`
 const ASSETS_TO_CACHE = ['/index.html', '/manifest.json']
 
@@ -6,6 +6,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   )
+  self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
@@ -14,6 +15,7 @@ self.addEventListener('activate', (event) => {
       Promise.all(names.map((name) => name !== CACHE_NAME && caches.delete(name)))
     )
   )
+  self.clients.claim()
 })
 
 self.addEventListener('fetch', (event) => {
@@ -27,31 +29,37 @@ self.addEventListener('fetch', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-  const data = event.data?.json() ?? {}
+  let data = {}
+  try { data = event.data?.json() ?? {} } catch (_) {}
+
+  const title = data.title || 'Candidly'
   const options = {
-    body: data.body,
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-192x192.png',
-    tag: data.tag || 'notification',
-    requireInteraction: true,
+    body: data.body || 'Nouvelles offres disponibles',
+    icon: '/favicon.svg',
+    badge: '/favicon.svg',
+    tag: data.alertId ? `alert-${data.alertId}` : 'candidly-alert',
+    data: { url: data.url || '/job-alerts' },
+    requireInteraction: false,
+    vibrate: [200, 100, 200],
   }
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'Candidly', options)
-  )
+
+  event.waitUntil(self.registration.showNotification(title, options))
 })
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
+  const url = event.notification.data?.url || '/job-alerts'
+
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
-          return client.focus()
+        if ('focus' in client) {
+          client.focus()
+          client.navigate(url)
+          return
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow('/')
-      }
+      if (clients.openWindow) return clients.openWindow(url)
     })
   )
 })
