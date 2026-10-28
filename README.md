@@ -7,7 +7,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-BDD%2FAuth-green?logo=supabase)
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-cyan?logo=tailwindcss)
 
-**Démo :** [candidly-nine.vercel.app](https://candidly-nine.vercel.app)
+**Site :** [candidly-nine.vercel.app](https://candidly-nine.vercel.app) (base de démo en veille, voir Statut)
 
 ## Le problème
 
@@ -59,7 +59,9 @@ Pour la base de données, exécuter `supabase/migrations/001_candidly_schema.sql
 
 ## Statut
 
-✅ **Fonctionnel et déployé.** Né de ma propre recherche d'alternance : je l'ai conçu pour mon usage, puis rendu générique.
+🌙 **Déployé, base de démo en veille.** Le site est en ligne, mais sa base Supabase (offre gratuite) est en pause : l'inscription et la connexion ne fonctionnent pas tant qu'elle n'est pas réactivée. Démo réactivable sur demande.
+
+Né de ma propre recherche d'alternance : je l'ai conçu pour mon usage, puis rendu générique.
 
 Pistes suivantes : déplacer entièrement les appels France Travail côté serveur (Edge Function) pour ne plus exposer d'identifiants dans le front, et ajouter un export CSV.
 
